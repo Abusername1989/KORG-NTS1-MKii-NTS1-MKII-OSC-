@@ -94,7 +94,7 @@ If you want to build these units from source, you'll need:
 
 ## 📄 License
 
-These units are based on the Korg logue SDK and follow the BSD 3-Clause License.
+These units are based on the Korg logue SDK.
 
 ## 🙏 Credits
 
