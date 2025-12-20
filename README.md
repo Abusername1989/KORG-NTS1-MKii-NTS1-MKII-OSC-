@@ -1,102 +1,34 @@
-# KORG NTS-1 mkII Custom Units
+# KORG NTS-1 MKII — Custom Units & Presets (OSC, Reverb, Delay, Modulation)
 
-Collection of custom oscillators and effects for the Korg NTS-1 mkII synthesizer.
+This repository contains custom units and preset files for the KORG NTS-1 MKII (file extension .nts1mkiiunit). You can find custom oscillators, effects (reverb, delay, chorus), and combined units that are ready to import into your NTS-1 MKII.
 
-## 📦 Installation
+Repository layout
+- units/ — collection of .nts1mkiiunit files (presets & custom units)
+- docs/  — installation and usage instructions (how-to files)
+- housekut.nts1mkiiunit (root) — example preset
 
-1. Download the `.nts1mkiiunit` files from the `units/` directory
-2. Connect your NTS-1 mkII to your computer
-3. Use the [logue-cli](https://github.com/korginc/logue-cli) tool or the official Korg software to load the units onto your device
+Why this repository
+- Presets and custom units specifically made for the NTS-1 MKII
+- Easy to download and import
+- Organized by type (osc / effects / drums / atmospheres)
 
-## 📚 Documentation
+Search keywords (SEO)
+KORG NTS-1, NTS1 MKII, nts1mkii, custom unit, preset, oscillator, reverb, delay, modulation, Korg NTS-1 presets
 
-Each unit includes a `HOW_TO_*.txt` file in the `docs/` directory with detailed information about:
-- Features
-- Hardware controls
-- All parameters and their functions
+Installation
+1. Download the desired .nts1mkiiunit file from the `units` folder or from Releases.
+2. Copy to your computer or USB drive and import according to the KORG NTS-1 MKII manual.
+3. See `docs/HOW_TO_housekut.txt` for step-by-step instructions and tips.
 
-## 🎹 Available Units
+Screenshots and demos
+- Consider adding short audio demos (10–30s) or YouTube links to showcase presets.
 
-### Oscillators
-- **PSY FLUTE** - Psychedelic synth-flute oscillator
-- **ELECTRIBE OSC** - Electribe-style oscillator with multiple synthesis modes
-- **DIGITONE FM** - FM synthesis oscillator
-- **TECHNO BEAST** - Techno-focused drum/percussion oscillator
-- **ARP BEAST** - Arpeggiator oscillator
-- **EDM GROOVEBOX** - EDM-focused groovebox oscillator
-- **HOUSE STACK** - House music stack oscillator
-- **HYPERPOLY** - Hyperpolyphonic oscillator
-- **STEPSEQ** - Step sequencer oscillator
-- **ADVSEQ** - Advanced sequencer oscillator
-- **ACID303PP** - Acid 303-style oscillator
-- **ORCH HIT** - Orchestral hit oscillator
-- **GABBER BASS** - Gabber bass oscillator
-- **M1 PIANO** - M1-style piano oscillator
-- **M1 PIANO PM** - M1 piano with phase modulation
-- **ORGAN2** - Organ oscillator
-- **RAVE ENGINE** - Rave engine oscillator
-- **TR909** - TR-909 style drum oscillator
-- **TD3 ACID** - TD-3 acid oscillator
-- **S1 TWEAK** - S1 tweak oscillator
-- **ELECTRIKUT OSC** - Electrikut oscillator
-- **KUTMIST** - Kutmist oscillator
+License
+- Add a LICENSE file (recommended: MIT or Creative Commons) so users know how they can use your presets.
 
-### Effects
+Contributing
+- Pull requests welcome. Please include a short description and (optional) screenshot or audio demo.
+- Use clear file naming: category_name.nts1mkiiunit (e.g. housekut.nts1mkiiunit)
 
-#### Delay Effects (DELFX)
-- **DUB BEAST** - Ultimate rhythmic delay with multiple modes
-- **WATERKUT** - Raindrop delay effect with 10 parallel delay lines
-- **SHIVIKUTFREQ** - Frequency shifting dub delay
-- **DISCO FALL** - Disco-style delay with chorus
-- **TAPE WOBBLE** - Tape wobble delay effect
-- **RAND REPEAT** - Random repeat delay
-- **PAN TREM** - Pan tremolo effect
-
-#### Modulation Effects (MODFX)
-- **KUTCHORUS** - Multi-mode chorus effect
-- **KLAPPERKUT V2** - Multi-effect modulation unit
-- **ETERNAL FLANGER** - Barber-pole flanger effect
-- **DUB KUT** - Dub-style modulation effect
-
-#### Reverb Effects (REVFX)
-- **EARLY BEAST** - Early reflections reverb
-- **KUTSHIMMER** - Shimmer/ambient reverb effect
-- **CATHEDRAL SMOOTH** - Smooth cathedral reverb
-- **CATHEDRAL REV** - Cathedral reverb
-- **ULTRA WIDE** - Ultra-wide reverb
-
-#### Other Effects
-- **SEQ FILTER** - Tempo-synced step sequencer modulation filter
-
-## 🎛️ Usage
-
-1. Load a unit onto your NTS-1 mkII
-2. Refer to the corresponding `HOW_TO_*.txt` file for detailed parameter information
-3. Use the hardware knobs and buttons to control the unit:
-   - **TYPE knob (A)**: Usually controls the main parameter
-   - **SHAPE knob (B)**: Usually controls a secondary parameter
-   - **SHIFT + B**: Usually controls mix or another important parameter
-   - **MOD button**: Often used to access additional parameters
-
-## 📝 Notes
-
-- All units are designed for the NTS-1 mkII platform
-- Units require firmware version 2.0 or higher
-- Some units may require specific settings or configurations
-- Refer to individual HOW_TO files for specific requirements
-
-## 🔧 Building
-
-If you want to build these units from source, you'll need:
-- [logue-sdk](https://github.com/korginc/logue-sdk)
-- Docker (for the build environment)
-- Source files are available in the original logue-sdk repository
-
-## 📄 License
-
-These units are based on the Korg logue SDK.
-
-## 🙏 Credits
-
-Built using the [Korg logue SDK](https://github.com/korginc/logue-sdk)
-
+Contact
+- Open an Issue if you have questions or need help.
