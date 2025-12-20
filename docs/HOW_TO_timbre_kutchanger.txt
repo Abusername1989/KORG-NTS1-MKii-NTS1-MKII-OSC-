@@ -1,0 +1,115 @@
+================================================================================
+TIMBRE-KUTCHANGER - ULTIMATE TIMBRE MORPHING MODFX
+================================================================================
+
+FEATURES:
+- Transform any oscillator into different characters
+- 5 character modes (Electric, Metallic, Flute, Alt/Mezzo, Soprano)
+- Formant filtering for vocal/brass-like tones
+- Harmonic emphasis control
+- Ensemble/chorus effect for width
+- Vibrato/motion for expression
+- Attack shaping for transients
+- Smooth character morphing (0-100%)
+
+================================================================================
+HARDWARE CONTROLS
+================================================================================
+
+TYPE KNOB (Knob A):
+  → Controls CHARACTER (0-100%)
+  → 0-19%: Electric, 20-39%: Metallic, 40-59%: Flute, 60-79%: Alt/Mezzo, 80-100%: Soprano
+
+SHAPE KNOB (Knob B):
+  → Controls BRIGHTNESS (tone color)
+  → Higher = brighter, more edge
+
+SHIFT + B:
+  → Access additional parameters via menu
+
+================================================================================
+10 PARAMETERS
+================================================================================
+
+0. CHARACTER (TYPE knob)
+   Range: 0-100%
+   Default: 50%
+   Use: Main timbre selector
+   - 0-19%: ELECTRIC - Bright, synth-achtig, dance/house leads
+   - 20-39%: METALLIC - High resonances, techno/psy vibes, comb-like
+   - 40-59%: FLUTE - Soft, breathy, melodic, acoustic feel
+   - 60-79%: ALT/MEZZO - Warm, vocal body, mid-range presence
+   - 80-100%: SOPRANO - Bright, brilliant, high register, expressive
+
+1. BRIGHTNESS (SHAPE knob)
+   Range: 0-100%
+   Default: 50%
+   Use: Tone color/edge/helderheid
+   - 0%: Dark (muffled, low-pass)
+   - 50%: Neutral (balanced)
+   - 100%: Bright (crisp, high-pass, cutting)
+
+2. FORMANT
+   Range: 0-100%
+   Default: 40%
+   Use: Vocal/brass body (formant frequency)
+   - 0%: Low formants (warm, body)
+   - 50%: Mid formants (balanced)
+   - 100%: High formants (bright, forward)
+
+3. MOTION
+   Range: 0-100%
+   Default: 30%
+   Use: Vibrato/expressie speed
+   - 0%: No motion (static)
+   - 30%: Subtle vibrato
+   - 100%: Fast vibrato (expressive)
+
+4. ENSEMBLE
+   Range: 0-100%
+   Default: 50%
+   Use: Stereo width/chorus effect
+   - 0%: Mono (no width)
+   - 50%: Normal stereo width
+   - 100%: Maximum width (wide, chorus-like)
+
+5. HARMONIC
+   Range: 0-100%
+   Default: 50%
+   Use: Harmonic emphasis (tilt EQ)
+   - 0%: Low harmonics (warm, body)
+   - 50%: Balanced harmonics
+   - 100%: High harmonics (bright, cutting)
+
+6. ATTACK
+   Range: 0-100%
+   Default: 50%
+   Use: Attack response shaping
+   - 0%: Fast attack (instant, percussive)
+   - 50%: Moderate attack
+   - 100%: Slow attack (swell, smooth)
+
+7. MIX
+   Range: 0-100%
+   Default: 75%
+   Use: Dry/wet blend
+   - 0%: Full dry (no effect)
+   - 50%: Balanced (50/50)
+   - 100%: Full wet (effect only)
+
+8. COLOR
+   Range: 0-100%
+   Default: 50%
+   Use: Color variation within character
+   - 0%: Darker variant
+   - 50%: Standard color
+   - 100%: Brighter variant
+
+9. DEPTH
+   Range: 0-100%
+   Default: 60%
+   Use: Effect intensity
+   - 0%: Subtle effect
+   - 60%: Moderate intensity
+   - 100%: Maximum intensity (strong transformation)
+
