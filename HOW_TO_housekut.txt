@@ -1,0 +1,116 @@
+================================================================================
+HOUSEKUT 
+================================================================================
+
+FEATURES:
+- 4 character modes (House Bells, Trance Leads, house Piano, Classic Club)
+- Unison detune for thickness
+- Brightness/tone control
+- Motion LFO for evolving timbre
+- Attack envelope shaping
+- Glide/portamento
+- Vibrato for musical expression
+- Warmth control for body
+- Flavor blend (90s to modern)
+- Sustain control (lead vs pluck)
+
+================================================================================
+HARDWARE CONTROLS
+================================================================================
+
+TYPE KNOB (Knob A):
+  → Controls CHARACTER (sound type)
+  → 0: BELLS, 1: TRANCE, 2: PIANO, 3: CLASSIC
+
+SHAPE KNOB (Knob B):
+  → Controls DETUNE (unison width/thickness)
+  → Higher = more detune, thicker sound
+
+SHIFT + B:
+  → Access additional parameters via menu
+
+================================================================================
+10 PARAMETERS
+================================================================================
+
+0. CHARACTER (TYPE knob)
+   Range: 0-3
+   Default: 1 (TRANCE)
+   Use: Sound type selection
+   - 0: BELLS - House Bells (FM-like bright bells, sparkly)
+   - 1: TRANCE - Trance Leads (Supersaw-style, emotional, wide)
+   - 2: PIANO - Nederhouse Piano (Warm, smooth, piano-like)
+   - 3: CLASSIC - Classic Club Lead (90s dance synth, timeless)
+
+1. DETUNE (SHAPE knob)
+   Range: 0-100%
+   Default: 50%
+   Use: Unison width/thickness
+   - 0%: No detune (single voice)
+   - 50%: Moderate detune (thick, wide)
+   - 100%: Maximum detune (very thick, wide)
+
+2. BRIGHTNESS
+   Range: 0-100%
+   Default: 60%
+   Use: Tone color/filter
+   - 0%: Dark (muffled, low-pass)
+   - 50%: Neutral (balanced)
+   - 100%: Bright (crisp, high-pass)
+
+3. MOTION
+   Range: 0-100%
+   Default: 30%
+   Use: Shape LFO movement
+   - 0%: No motion (static)
+   - 30%: Subtle movement
+   - 100%: Maximum motion (evolving timbre)
+
+4. ATTACK
+   Range: 0-100%
+   Default: 25%
+   Use: Note attack style
+   - 0%: Quick attack (instant)
+   - 25%: Moderate attack
+   - 100%: Slow attack (swell)
+
+5. GLIDE
+   Range: 0-100%
+   Default: 20%
+   Use: Legato portamento
+   - 0%: No glide (instant pitch change)
+   - 20%: Subtle glide
+   - 100%: Maximum glide (smooth pitch transitions)
+
+6. VIBRATO
+   Range: 0-100%
+   Default: 30%
+   Use: Musical pitch vibrato
+   - 0%: No vibrato
+   - 30%: Subtle vibrato
+   - 100%: Maximum vibrato (wide pitch modulation)
+
+7. WARMTH
+   Range: 0-100%
+   Default: 50%
+   Use: Body/low-mid presence
+   - 0%: Thin (no body)
+   - 50%: Balanced
+   - 100%: Warm (full body, low-mid emphasis)
+
+8. FLAVOR
+   Range: 0-100%
+   Default: 33%
+   Use: 90s to modern blend
+   - 0%: Classic 90s (more pulse, vintage)
+   - 33%: Balanced
+   - 100%: Modern (more saw, contemporary)
+
+9. SUSTAIN
+   Range: 0-100%
+   Default: 75%
+   Use: Lead vs pluck behavior
+   - 0%: Pluck (short, percussive)
+   - 50%: Balanced
+   - 100%: Lead (long sustain, melodic)
+
