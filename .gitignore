@@ -17,3 +17,7 @@ desktop.ini
 *.tmp
 *.log
 
+# Security scan files (local only, not for repository)
+.secrets.baseline
+trufflehog.json
+
