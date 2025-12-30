@@ -1,0 +1,590 @@
+/*
+PIANO V2 - WAVETABLE SYNTHESIS
+    
+
+*/
+
+#include "unit_osc.h"
+#include "utils/float_math.h"
+#include "utils/int_math.h"
+#include "macros.h"
+
+#define WAVETABLE_SIZE 512
+#define NUM_WAVETABLES 4
+#define MAX_VOICES 4
+#define CHORUS_BUFFER_SIZE 1024
+#define MAX_CHORD_NOTES 4
+
+static const unit_runtime_osc_context_t *s_context;
+
+// Wavetables (procedurally generated in init)
+static float s_wavetable[NUM_WAVETABLES][WAVETABLE_SIZE];
+
+// Wavetable indices:
+// 0 = LOW (warm, full body)
+// 1 = MID (classic M1, bright attack)
+// 2 = HIGH (thin, glassy)
+// 3 = SOFT (mellow velocity layer)
+
+struct Voice {
+    float phase;
+    float level;
+    uint8_t note;
+    uint8_t velocity;
+    bool active;
+    
+    float env_attack;
+    float env_decay;
+    float env_sustain;
+    float env_release;
+    float env_level;
+    uint8_t env_stage;
+    uint32_t env_counter;
+};
+
+static Voice s_voices[MAX_VOICES];
+
+// Formant filter (2-pole resonant)
+static float s_formant_z1[2];
+static float s_formant_z2[2];
+
+// Chorus effect
+static float s_chorus_buffer_l[CHORUS_BUFFER_SIZE];
+static float s_chorus_buffer_r[CHORUS_BUFFER_SIZE];
+static uint32_t s_chorus_write;
+static float s_chorus_lfo_phase;
+
+// Chord memory
+static uint8_t s_chord_notes[MAX_CHORD_NOTES];
+static uint8_t s_chord_vels[MAX_CHORD_NOTES];
+static uint8_t s_chord_count;
+
+// Parameters
+static float s_brightness;
+static float s_decay_time;
+static float s_detune;
+static float s_formant_freq;
+static float s_attack_click;
+static float s_chorus_depth;
+static float s_velocity_sens;
+static float s_release_time;
+static uint8_t s_preset;
+static uint8_t s_chord_mode;
+
+static uint32_t s_sample_counter;
+
+// Chord intervals
+static const int8_t s_chord_intervals[12][4] = {
+    {0, 0, 0, 0},      // SINGLE
+    {0, 12, 0, 0},     // OCTAVE
+    {0, 7, 0, 0},      // FIFTH
+    {0, 4, 7, 0},      // MAJOR
+    {0, 3, 7, 0},      // MINOR
+    {0, 4, 7, 11},     // MAJ7
+    {0, 3, 7, 10},     // MIN7
+    {0, 4, 7, 10},     // DOM7
+    {0, 3, 6, 10},     // DIM7
+    {0, 5, 7, 0},      // SUS4
+    {0, 2, 7, 0},      // SUS2
+    {0, 4, 7, 12}      // MAJ+OCT
+};
+
+// M1 Preset configurations
+struct M1Preset {
+    float brightness;
+    float decay;
+    float formant;
+    float attack;
+    float chorus;
+    const char* name;
+};
+
+static const M1Preset s_m1_presets[8] = {
+    {0.85f, 0.40f, 0.60f, 0.75f, 0.35f, "M1 PIANO"},
+    {0.95f, 0.30f, 0.70f, 0.85f, 0.50f, "HOUSE"},
+    {0.75f, 0.60f, 0.50f, 0.60f, 0.25f, "SOFT"},
+    {0.98f, 0.25f, 0.80f, 0.90f, 0.60f, "RAVE"},
+    {0.70f, 0.70f, 0.40f, 0.50f, 0.20f, "MELLOW"},
+    {0.90f, 0.35f, 0.75f, 0.80f, 0.45f, "DANCE"},
+    {0.65f, 0.80f, 0.35f, 0.40f, 0.15f, "WURLI"},
+    {0.88f, 0.50f, 0.65f, 0.70f, 0.40f, "TRANCE"}
+};
+
+inline float fast_tanh(float x) {
+    if (x < -3.f) return -1.f;
+    if (x > 3.f) return 1.f;
+    float x2 = x * x;
+    return x * (27.f + x2) / (27.f + 9.f * x2);
+}
+
+void generate_m1_wavetables() {
+    // WAVETABLE 0: LOW (Warm, full-bodied)
+    for (int i = 0; i < WAVETABLE_SIZE; i++) {
+        float phase = (float)i / (float)WAVETABLE_SIZE;
+        float fundamental = osc_sinf(phase);
+        float h2 = osc_sinf(phase * 2.f) * 0.6f;
+        float h3 = osc_sinf(phase * 3.f) * 0.4f;
+        float h4 = osc_sinf(phase * 4.f) * 0.2f;
+        float h5 = osc_sinf(phase * 5.f) * 0.15f;
+        s_wavetable[0][i] = (fundamental + h2 + h3 + h4 + h5) / 2.35f;
+    }
+    
+    // WAVETABLE 1: MID (Classic M1 - bright, percussive)
+    for (int i = 0; i < WAVETABLE_SIZE; i++) {
+        float phase = (float)i / (float)WAVETABLE_SIZE;
+        float fundamental = osc_sinf(phase);
+        float h2 = osc_sinf(phase * 2.f) * 0.4f;
+        float h3 = osc_sinf(phase * 3.f) * 0.8f;  // Strong 3rd!
+        float h4 = osc_sinf(phase * 4.f) * 0.3f;
+        float h5 = osc_sinf(phase * 5.f) * 0.6f; // Strong 5th!
+        float h7 = osc_sinf(phase * 7.f) * 0.4f;
+        float h9 = osc_sinf(phase * 9.f) * 0.25f;
+        
+        float sum = fundamental + h2 + h3 + h4 + h5 + h7 + h9;
+        
+        float metallic = osc_sinf(phase * 11.f) * 0.15f;
+        float bell = osc_sinf(phase * 13.f) * 0.12f;
+        
+        s_wavetable[1][i] = (sum + metallic + bell) / 3.2f;
+    }
+    
+    // WAVETABLE 2: HIGH (Thin, glassy, trebly)
+    for (int i = 0; i < WAVETABLE_SIZE; i++) {
+        float phase = (float)i / (float)WAVETABLE_SIZE;
+        float fundamental = osc_sinf(phase) * 0.5f;
+        float h3 = osc_sinf(phase * 3.f) * 0.7f;
+        float h5 = osc_sinf(phase * 5.f) * 0.6f;
+        float h7 = osc_sinf(phase * 7.f) * 0.5f;
+        float h9 = osc_sinf(phase * 9.f) * 0.4f;
+        float h11 = osc_sinf(phase * 11.f) * 0.3f;
+        
+        s_wavetable[2][i] = (fundamental + h3 + h5 + h7 + h9 + h11) / 3.0f;
+    }
+    
+    // WAVETABLE 3: SOFT (Mellow velocity layer)
+    for (int i = 0; i < WAVETABLE_SIZE; i++) {
+        float phase = (float)i / (float)WAVETABLE_SIZE;
+        float fundamental = osc_sinf(phase);
+        float h2 = osc_sinf(phase * 2.f) * 0.5f;
+        float h3 = osc_sinf(phase * 3.f) * 0.3f;
+        float h4 = osc_sinf(phase * 4.f) * 0.15f;
+        s_wavetable[3][i] = (fundamental + h2 + h3 + h4) / 1.95f;
+    }
+}
+
+inline float wavetable_read(int table_idx, float phase) {
+    phase = phase - (int32_t)phase;
+    if (phase < 0.f) phase += 1.f;
+    
+    float idx_f = phase * (float)(WAVETABLE_SIZE - 1);
+    uint32_t idx0 = (uint32_t)idx_f;
+    uint32_t idx1 = (idx0 + 1) % WAVETABLE_SIZE;
+    float frac = idx_f - (float)idx0;
+    
+    return s_wavetable[table_idx][idx0] * (1.f - frac) + 
+           s_wavetable[table_idx][idx1] * frac;
+}
+
+inline int select_wavetable(uint8_t note, uint8_t velocity) {
+    if (velocity < 60) return 3; // SOFT
+    
+    if (note < 48) return 0;      // LOW
+    else if (note < 72) return 1; // MID (classic M1!)
+    else return 2;                // HIGH
+}
+
+inline float formant_filter(float x, int channel) {
+    float freq = 800.f + s_formant_freq * 2200.f;
+    float q = 4.f + s_formant_freq * 12.f;
+    
+    float w0 = 2.f * M_PI * freq / 48000.f;
+    float alpha = osc_sinf(w0 / (2.f * M_PI)) / (2.f * q);
+    
+    float b0 = alpha;
+    float b1 = 0.f;
+    float b2 = -alpha;
+    float a0 = 1.f + alpha;
+    float a1 = -2.f * fastcosf(w0);
+    float a2 = 1.f - alpha;
+    
+    b0 /= a0; b1 /= a0; b2 /= a0;
+    a1 /= a0; a2 /= a0;
+    
+    float y = b0 * x + b1 * s_formant_z1[channel] + b2 * s_formant_z2[channel]
+              - a1 * s_formant_z1[channel] - a2 * s_formant_z2[channel];
+    
+    s_formant_z2[channel] = s_formant_z1[channel];
+    s_formant_z1[channel] = x;
+    
+    return y;
+}
+
+inline float chorus_process(float x, int channel) {
+    if (s_chorus_depth < 0.01f) return x;
+    
+    float *buffer = (channel == 0) ? s_chorus_buffer_l : s_chorus_buffer_r;
+    
+    buffer[s_chorus_write] = x;
+    
+    s_chorus_lfo_phase += 0.5f / 48000.f;
+    if (s_chorus_lfo_phase >= 1.f) s_chorus_lfo_phase -= 1.f;
+    
+    float lfo = osc_sinf(s_chorus_lfo_phase);
+    float delay_samps = 1000.f + lfo * 600.f * s_chorus_depth + (float)channel * 150.f;
+    
+    uint32_t delay_int = (uint32_t)delay_samps;
+    uint32_t read_pos = (s_chorus_write + CHORUS_BUFFER_SIZE - delay_int) % CHORUS_BUFFER_SIZE;
+    
+    float wet = buffer[read_pos];
+    return x * (1.f - s_chorus_depth * 0.5f) + wet * s_chorus_depth * 0.5f;
+}
+
+inline void voice_trigger(int voice_idx, uint8_t note, uint8_t velocity) {
+    Voice *v = &s_voices[voice_idx];
+    v->phase = 0.f;
+    v->note = note;
+    v->velocity = velocity;
+    v->active = true;
+    
+    v->env_attack = 0.002f + s_attack_click * 0.008f;
+    v->env_decay = 0.1f + s_decay_time * 2.9f;
+    v->env_sustain = 0.3f + s_decay_time * 0.4f;
+    v->env_release = 0.05f + s_release_time * 1.95f;
+    
+    v->env_stage = 0;
+    v->env_counter = 0;
+    v->env_level = 0.f;
+}
+
+inline float voice_envelope(Voice *v) {
+    float env = 0.f;
+    float time_scale = 48000.f;
+    
+    switch (v->env_stage) {
+        case 0: { // Attack
+            uint32_t attack_samples = (uint32_t)(v->env_attack * time_scale);
+            if (attack_samples < 10) attack_samples = 10;
+            
+            v->env_counter++;
+            if (v->env_counter >= attack_samples) {
+                v->env_stage = 1;
+                v->env_counter = 0;
+                env = 1.f;
+            } else {
+                float t = (float)v->env_counter / (float)attack_samples;
+                env = t * t;
+            }
+            break;
+        }
+        case 1: { // Decay
+            uint32_t decay_samples = (uint32_t)(v->env_decay * time_scale);
+            v->env_counter++;
+            if (v->env_counter >= decay_samples) {
+                v->env_stage = 2;
+                env = v->env_sustain;
+            } else {
+                float t = (float)v->env_counter / (float)decay_samples;
+                env = 1.f - t * (1.f - v->env_sustain);
+            }
+            break;
+        }
+        case 2: // Sustain
+            env = v->env_sustain;
+            break;
+        case 3: { // Release
+            uint32_t release_samples = (uint32_t)(v->env_release * time_scale);
+            v->env_counter++;
+            if (v->env_counter >= release_samples) {
+                v->env_stage = 4;
+                env = 0.f;
+                v->active = false;
+            } else {
+                float t = (float)v->env_counter / (float)release_samples;
+                env = v->env_level * (1.f - t);
+            }
+            break;
+        }
+        case 4: // Off
+            env = 0.f;
+            v->active = false;
+            break;
+    }
+    
+    v->env_level = env;
+    return env;
+}
+
+__unit_callback int8_t unit_init(const unit_runtime_desc_t *desc)
+{
+    if (!desc) return k_unit_err_undef;
+    if (desc->target != unit_header.target) return k_unit_err_target;
+    if (!UNIT_API_IS_COMPAT(desc->api)) return k_unit_err_api_version;
+    if (desc->samplerate != 48000) return k_unit_err_samplerate;
+    if (desc->input_channels != 2 || desc->output_channels != 1) return k_unit_err_geometry;
+
+    s_context = static_cast<const unit_runtime_osc_context_t *>(desc->hooks.runtime_context);
+
+    generate_m1_wavetables();
+    
+    for (int i = 0; i < MAX_VOICES; i++) {
+        s_voices[i].phase = 0.f;
+        s_voices[i].active = false;
+        s_voices[i].env_stage = 4;
+    }
+    
+    s_formant_z1[0] = s_formant_z1[1] = 0.f;
+    s_formant_z2[0] = s_formant_z2[1] = 0.f;
+    
+    for (int i = 0; i < CHORUS_BUFFER_SIZE; i++) {
+        s_chorus_buffer_l[i] = 0.f;
+        s_chorus_buffer_r[i] = 0.f;
+    }
+    s_chorus_write = 0;
+    s_chorus_lfo_phase = 0.f;
+    
+    s_chord_count = 0;
+    
+    s_brightness = 0.75f;
+    s_decay_time = 0.6f;
+    s_detune = 0.35f;
+    s_formant_freq = 0.5f;
+    s_attack_click = 0.65f;
+    s_chorus_depth = 0.3f;
+    s_velocity_sens = 0.4f;
+    s_release_time = 0.25f;
+    s_preset = 0;
+    s_chord_mode = 2;
+    
+    s_sample_counter = 0;
+
+    return k_unit_err_none;
+}
+
+__unit_callback void unit_teardown() {}
+
+__unit_callback void unit_reset()
+{
+    for (int i = 0; i < MAX_VOICES; i++) {
+        s_voices[i].phase = 0.f;
+    }
+    s_chorus_lfo_phase = 0.f;
+}
+
+__unit_callback void unit_resume() {}
+__unit_callback void unit_suspend() {}
+
+__unit_callback void unit_render(const float *in, float *out, uint32_t frames)
+{
+    uint8_t base_note = (s_context->pitch >> 8) & 0xFF;
+    uint8_t mod = s_context->pitch & 0xFF;
+    
+    for (uint32_t f = 0; f < frames; f++) {
+        float sig_l = 0.f;
+        float sig_r = 0.f;
+        int active_count = 0;
+        
+        for (int v = 0; v < MAX_VOICES; v++) {
+            Voice *voice = &s_voices[v];
+            if (!voice->active) continue;
+            
+            float env = voice_envelope(voice);
+            if (env < 0.001f && voice->env_stage >= 3) {
+                voice->active = false;
+                continue;
+            }
+            
+            float velocity_scale = (float)voice->velocity / 127.f;
+            velocity_scale = 0.3f + velocity_scale * 0.7f * s_velocity_sens + 
+                            (1.f - s_velocity_sens) * 0.7f;
+            
+            int wave_idx = select_wavetable(voice->note, voice->velocity);
+            
+            float brightness_mod = s_brightness;
+            if (voice->velocity > 90) {
+                brightness_mod += 0.15f;
+            }
+            
+            if (brightness_mod > 0.5f && wave_idx == 1) {
+                float morph = (brightness_mod - 0.5f) * 2.f;
+                float w1 = wavetable_read(1, voice->phase);
+                float w2 = wavetable_read(2, voice->phase);
+                float sig = w1 * (1.f - morph) + w2 * morph;
+                
+                float attack_transient = 0.f;
+                if (voice->env_stage == 0 && s_attack_click > 0.5f) {
+                    float click_env = 1.f - ((float)voice->env_counter / 480.f);
+                    if (click_env > 0.f) {
+                        attack_transient = click_env * click_env * s_attack_click * 0.4f;
+                    }
+                }
+                
+                sig += attack_transient;
+                
+                float detune_amount = s_detune * 0.008f;
+                float phase_l = voice->phase;
+                float phase_r = voice->phase + detune_amount;
+                if (phase_r >= 1.f) phase_r -= 1.f;
+                
+                sig_l += wavetable_read(wave_idx, phase_l) * env * velocity_scale;
+                sig_r += wavetable_read(wave_idx, phase_r) * env * velocity_scale;
+            } else {
+                float sig = wavetable_read(wave_idx, voice->phase);
+                
+                float attack_transient = 0.f;
+                if (voice->env_stage == 0 && s_attack_click > 0.5f) {
+                    float click_env = 1.f - ((float)voice->env_counter / 480.f);
+                    if (click_env > 0.f) {
+                        attack_transient = click_env * click_env * s_attack_click * 0.4f;
+                    }
+                }
+                sig += attack_transient;
+                
+                float detune_amount = s_detune * 0.008f;
+                float phase_l = voice->phase;
+                float phase_r = voice->phase + detune_amount;
+                if (phase_r >= 1.f) phase_r -= 1.f;
+                
+                sig_l += sig * env * velocity_scale;
+                sig_r += sig * env * velocity_scale;
+            }
+            
+            float w0 = osc_w0f_for_note(voice->note, mod);
+            voice->phase += w0;
+            voice->phase -= (uint32_t)voice->phase;
+            
+            active_count++;
+        }
+        
+        if (active_count > 0) {
+            sig_l /= (float)active_count;
+            sig_r /= (float)active_count;
+        }
+        
+        sig_l = formant_filter(sig_l, 0);
+        sig_r = formant_filter(sig_r, 1);
+        
+        sig_l = chorus_process(sig_l, 0);
+        sig_r = chorus_process(sig_r, 1);
+        
+        float mono = (sig_l + sig_r) * 0.5f;
+        mono = fast_tanh(mono * 1.3f);
+        
+        out[f] = clipminmaxf(-1.f, mono * 1.8f, 1.f);  // Volume boost!
+        
+        s_chorus_write = (s_chorus_write + 1) % CHORUS_BUFFER_SIZE;
+        s_sample_counter++;
+    }
+}
+
+__unit_callback void unit_set_param_value(uint8_t id, int32_t value)
+{
+    value = clipminmaxi32(unit_header.params[id].min, value, unit_header.params[id].max);
+    const float valf = param_val_to_f32(value);
+    
+    switch (id) {
+        case 0: s_brightness = valf; break;
+        case 1: s_decay_time = valf; break;
+        case 2: s_detune = valf; break;
+        case 3: s_formant_freq = valf; break;
+        case 4: s_attack_click = valf; break;
+        case 5: s_chorus_depth = valf; break;
+        case 6: s_velocity_sens = valf; break;
+        case 7: s_release_time = valf; break;
+        case 8:
+            s_preset = value;
+            if (value < 8) {
+                s_brightness = s_m1_presets[value].brightness;
+                s_decay_time = s_m1_presets[value].decay;
+                s_formant_freq = s_m1_presets[value].formant;
+                s_attack_click = s_m1_presets[value].attack;
+                s_chorus_depth = s_m1_presets[value].chorus;
+            }
+            break;
+        case 9: s_chord_mode = value; break;
+        default: break;
+    }
+}
+
+__unit_callback int32_t unit_get_param_value(uint8_t id)
+{
+    switch (id) {
+        case 0: return (int32_t)(s_brightness * 1023.f);
+        case 1: return (int32_t)(s_decay_time * 1023.f);
+        case 2: return (int32_t)(s_detune * 1023.f);
+        case 3: return (int32_t)(s_formant_freq * 1023.f);
+        case 4: return (int32_t)(s_attack_click * 1023.f);
+        case 5: return (int32_t)(s_chorus_depth * 1023.f);
+        case 6: return (int32_t)(s_velocity_sens * 1023.f);
+        case 7: return (int32_t)(s_release_time * 1023.f);
+        case 8: return s_preset;
+        case 9: return s_chord_mode;
+        default: return 0;
+    }
+}
+
+__unit_callback const char *unit_get_param_str_value(uint8_t id, int32_t value)
+{
+    if (id == 8) {
+        static const char *preset_names[] = {
+            "M1", "HOUSE", "SOFT", "RAVE", "MELLOW", "DANCE", "WURLI", "TRANCE"
+        };
+        return preset_names[value];
+    }
+    if (id == 9) {
+        static const char *chord_names[] = {
+            "SINGLE", "OCT", "5TH", "MAJ", "MIN", "MAJ7",
+            "MIN7", "DOM7", "DIM7", "SUS4", "SUS2", "MAJ+8"
+        };
+        return chord_names[value];
+    }
+    return "";
+}
+
+__unit_callback void unit_note_on(uint8_t note, uint8_t velo)
+{
+    int num_chord_notes = 0;
+    uint8_t chord_notes_temp[MAX_CHORD_NOTES];
+    
+    if (s_chord_mode == 0) {
+        chord_notes_temp[0] = note;
+        num_chord_notes = 1;
+    } else {
+        for (int i = 0; i < MAX_CHORD_NOTES; i++) {
+            int8_t interval = s_chord_intervals[s_chord_mode][i];
+            if (interval == 0 && i > 0) break;
+            uint8_t chord_note = clipminmaxi32(0, note + interval, 127);
+            chord_notes_temp[num_chord_notes++] = chord_note;
+        }
+    }
+    
+    for (int v = 0; v < num_chord_notes && v < MAX_VOICES; v++) {
+        voice_trigger(v, chord_notes_temp[v], velo);
+    }
+}
+
+__unit_callback void unit_note_off(uint8_t note)
+{
+    for (int v = 0; v < MAX_VOICES; v++) {
+        if (s_voices[v].note == note && s_voices[v].env_stage < 3) {
+            s_voices[v].env_stage = 3;
+            s_voices[v].env_counter = 0;
+        }
+    }
+}
+
+__unit_callback void unit_all_note_off()
+{
+    for (int v = 0; v < MAX_VOICES; v++) {
+        s_voices[v].env_stage = 4;
+        s_voices[v].active = false;
+    }
+}
+
+__unit_callback void unit_set_tempo(uint32_t tempo) {}
+__unit_callback void unit_tempo_4ppqn_tick(uint32_t counter) {}
+
+__unit_callback void unit_pitch_bend(uint16_t bend) {}
+
+__unit_callback void unit_channel_pressure(uint8_t press) {}
+
+__unit_callback void unit_aftertouch(uint8_t note, uint8_t press) {}
