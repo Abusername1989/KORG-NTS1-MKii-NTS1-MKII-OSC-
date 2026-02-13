@@ -1,5 +1,4 @@
-# PowerShell script (temporary)
-copy_units.ps1
+
 
 # OS files
 .DS_Store
@@ -17,7 +16,5 @@ desktop.ini
 *.tmp
 *.log
 
-# Security scan files (local only, not for repository)
-.secrets.baseline
-trufflehog.json
+
 
