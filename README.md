@@ -6,15 +6,17 @@ In the beginning, I regretted not buying a second nts1mki, since there were many
 I decided to start building oscillators myself. I put a lot of time into it and I'm offering everything for free! There may still be some undiscovered bugs here and there!  
 USE AT YOUR OWN RISK BUT MOST IMPORTANT: HAVE FUN!! Feedback is welcome
 
-
 I think you guys will appreciate this! Bring out that mkii again!  
 
-* I personally use the SQ1 for step sequences.
 
-Repository layout
-- units/ — collection of .nts1mkiiunit files (presets & custom units)
-- docs/  — installation and usage instructions (how-to files)
-- housekut.nts1mkiiunit (root) — example preset
+
+# >>>>>>>> For those who downloaded OSCs before 13-02: OSCs and effects have been updated + a number of new OSCs and Reverb effects!<<<<<<<<<<<<<<<<
+# I haven't felt like categorizing them by effect yet. You'll figure it out when you place them on the NTS in the Editor😉
+
+
+
+
+
 
 
 
