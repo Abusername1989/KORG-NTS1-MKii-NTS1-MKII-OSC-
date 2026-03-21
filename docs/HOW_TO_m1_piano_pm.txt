@@ -30,7 +30,7 @@ PARAMETERS:
 6. CHORUS - Chorus amount (Range: 0-1023, Default: 256)
 7. RELEASE - Release time (Range: 0-1023, Default: 205)
 8. PRESET - Preset selection (Range: 0-7, Default: 0)
-9. UNISON - Unison mode (Range: 0-2, Default: 1)
+9. VELOCITY - Velocity sensitivity (Range: 0-1023, Default: 512)
 
 ═══════════════════════════════════════════════════════════════
 FEATURES
@@ -85,7 +85,10 @@ PRESET parameter (0-7):
 6. DETUNED - Wide stereo spread
 7. LOFI - Dark, damped
 
-UNISON parameter (0-2): Unison mode selection
+VELOCITY parameter (0-1023): Velocity sensitivity
+- 0%: Low sensitivity (less dynamic range)
+- 50%: Normal sensitivity (balanced)
+- 100%: High sensitivity (strong velocity response)
 
 ═══════════════════════════════════════════════════════════════
 EXAMPLE SETTINGS

@@ -1,5 +1,4 @@
-# PowerShell script (temporary)
-copy_units.ps1
+
 
 # OS files
 .DS_Store
@@ -16,4 +15,6 @@ desktop.ini
 # Temporary files
 *.tmp
 *.log
+
+
 
