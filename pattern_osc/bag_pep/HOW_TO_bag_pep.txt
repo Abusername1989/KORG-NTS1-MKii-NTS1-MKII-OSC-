@@ -1,0 +1,59 @@
+================================================================================
+bag_pep - OSCILLATOR
+================================================================================
+
+FEATURES:
+- bag_pep -  Pattern Oscillator for NTS-1 mkII
+- Tempo-synced riff engine.
+- 7 genre styles with their own BPM and sound character:
+- 8 patterns per style, 16 steps each.
+
+================================================================================
+9 PARAMETERS
+================================================================================
+
+0. STYLE (Knob A)
+   Range: 0-6
+   Default: 0
+   Use: Adjust STYLE (see sound).
+
+1. PTRN (Knob B)
+   Range: 0-7
+   Default: 0
+   Use: Pattern select
+
+2. SWING
+   Range: 0-1023
+   Default: 300
+   Use: Swing / groove
+
+3. GATE
+   Range: 0-1023
+   Default: 500
+   Use: Gate / note length
+
+4. OCTAVE
+   Range: 0-3
+   Default: 1
+   Use: Octave
+
+5. BRIGHT
+   Range: 0-1023
+   Default: 600
+   Use: Brightness / tone
+
+6. ATTACK
+   Range: 0-1023
+   Default: 500
+   Use: Attack
+
+7. VELO
+   Range: 0-1023
+   Default: 400
+   Use: Velocity response
+
+8. GLIDE
+   Range: 0-1023
+   Default: 150
+   Use: Portamento
+

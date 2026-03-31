@@ -1,0 +1,62 @@
+================================================================================
+BrokenFl - OSCILLATOR
+================================================================================
+
+FEATURES:
+- BrokenFloor - Early hardcore / Frenchcore beat & rhythm maker (140-180 BPM)
+- NTS-1 mkII | 40 patterns | 10 parameters
+
+================================================================================
+10 PARAMETERS
+================================================================================
+
+0. SCNE (Knob A)
+   Range: 0-3
+   Default: 0
+   Use: Adjust SCNE (see sound).
+
+1. PTRN (Knob B)
+   Range: 0-24
+   Default: 0
+   Use: Pattern select
+
+2. SWNG
+   Range: 0-1023
+   Default: 380
+   Use: Swing / groove
+
+3. GATE
+   Range: 0-1023
+   Default: 520
+   Use: Gate / note length
+
+4. OCT
+   Range: 0-3
+   Default: 1
+   Use: Octave / range
+
+5. FMIX
+   Range: 0-1023
+   Default: 480
+   Use: Adjust FMIX (see sound).
+
+6. DRIVE
+   Range: 0-1023
+   Default: 550
+   Use: Drive
+
+7. STACK
+   Range: 0-1023
+   Default: 560
+   Use: Adjust STACK (see sound).
+
+8. GLDE
+   Range: 0-1023
+   Default: 150
+   Use: Glide
+
+9. RATE
+   Range: 0-1023
+   Default: 520
+   Use: Rate / speed
+

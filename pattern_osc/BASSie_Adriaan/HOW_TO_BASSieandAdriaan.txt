@@ -1,0 +1,62 @@
+================================================================================
+BASSie&Adriaan - OSCILLATOR
+================================================================================
+
+FEATURES:
+- BASSie & Adriaan - Bass + Kick Layer OSC. NTS-1 mkII.
+- 4 modes: DEEP, PUMP, STEP, WIDE. 8 patterns each. KICK layer default ON.
+
+================================================================================
+10 PARAMETERS
+================================================================================
+
+0. SQLCH (Knob A)
+   Range: 0-3
+   Default: 0
+   Use: Adjust SQLCH (see sound).
+
+1. PTRN (Knob B)
+   Range: 0-15
+   Default: 0
+   Use: Pattern select
+
+2. KICK
+   Range: 0-1023
+   Default: 800
+   Use: Adjust KICK (see sound).
+
+3. SWING
+   Range: 0-1023
+   Default: 380
+   Use: Swing / groove
+
+4. GATE
+   Range: 0-1023
+   Default: 640
+   Use: Gate / note length
+
+5. OCTAVE
+   Range: 0-3
+   Default: 1
+   Use: Octave
+
+6. GRIT
+   Range: 0-1023
+   Default: 350
+   Use: Adjust GRIT (see sound).
+
+7. PUNCH
+   Range: 0-1023
+   Default: 520
+   Use: Punch / transient
+
+8. MORPH
+   Range: 0-1023
+   Default: 500
+   Use: Adjust MORPH (see sound).
+
+9. RATE
+   Range: 0-1023
+   Default: 520
+   Use: Rate / speed
+
