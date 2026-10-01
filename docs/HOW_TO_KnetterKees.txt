@@ -1,0 +1,102 @@
+============================================================================
+KnetterKees - OSCILLATOR 
+================================================================================
+
+
+- Set the EG TYPE to OPEN,
+  otherwise the NTS itself closes the sound when no key is held.
+-  Everything locks to 16th notes.
+-  MUTA 0 = locked loop that repeats forever, higher = the loop mutates,
+  max = pure chaos.
+- LEN sets the bass loop length (3, 5, 6, 7, 8, 11, 12, 16, 24 or 32 steps).
+  The drums always loop over 16 steps, so odd lengths give polymeter
+  (bass and drums drift against each other and meet again later).
+- Synthesised drums: kick, snare / industrial metal clang, closed/open hats.
+  Ghost hits are picked by SEED and switched on by DENS.
+- Talking bass voice: reese / FM / square through a vowel formant filter
+  (U-O-A-E-I morph per step) + wavefolder. The kick ducks the bass.
+- FILL = ratchet rolls (2-4 hits in one step). Extra rolls at the end of
+  every 4th bar.
+- The NTS-1 shape LFO (SHAPE LFO) modulates TALK.
+
+4 STYLES 
+- NEURO : 2-step drum & bass, detuned reese + talking filter
+- INDUS : 4/4 industrial / EBM, FM metal bass, clang snare, open hats
+- HALF  : half-time growl, tempo-synced vowel wobble
+- BRKC  : breakcore / amen chops, heavy rolls
+
+=============================================================================
+10 PARA(KEES)METERS
+==============================================================================
+
+0. STYL (Knob A)
+  
+   Use: Style: drum lanes, bass scale and voice character.
+        Changing STYL also re-seeds the bassline.
+
+1. MUTA (Knob B)
+   Range: 0-1023
+   Default: 0
+   Use: Mutation. 0 = locked loop. Turn up to let the bassline evolve.
+        Above 50% the ghost drums also get reshuffled every bar.
+        Tip: turn MUTA up until you like the line, then back to 0 to freeze it.
+
+2. SEED
+   Range: 0-31
+   Default: 0
+   Use: Start pattern. Every seed = a different bassline + ghost drums.
+
+3. DENS
+   Range: 0-1023
+   Default: 600
+   Use: Density. More bass notes and more ghost drum hits.
+        Also opens the bass filter a bit.
+
+4. TALK
+   Range: 0-1023
+   Default: 550
+   Use: Amount of the talking vowel filter / wobble. 0 = plain filtered bass.
+
+5. GRIT
+   Range: 0-1023
+   Default: 450
+   Use: Drive. Low = warm saturation, high = wavefolder + harder master clip.
+
+6. DRUM
+   Range: 0-1023
+   Default: 750
+   Use: Drum level + how hard the kick ducks the bass.
+        0 = bassline only (use it with an external drum machine).
+
+7. FILL
+   Range: 0-1023
+   Default: 250
+   Use: Ratchet / roll probability. High = breakcore rolls everywhere.
+
+8. LEN
+   Range: 3 / 5 / 6 / 7 / 8 / 11 / 12 / 16 / 24 / 32
+   Default: 16
+   Use: Length of the bass loop in steps. Anything other than 8/16/32
+        runs polymetric against the 16-step drums.
+
+9. PLAY
+   Range: FREE / LTCH / GATE / STOP
+   Default: FREE
+   Use: FREE = plays from load, keys only transpose, never stops.
+        LTCH = waits for the first key, then keeps playing (every key restarts
+               the pattern at step 1 and transposes).
+        GATE = only plays while a key is held (classic behaviour).
+        STOP = machine stopped. Switch back to FREE / LTCH to go again.
+
+KEYS: the played key sets the root (the bass sounds one octave lower).
+PITCH BEND: +/- 2 semitones on the bass.
+
+============================================================================
+SUITE KnetterKees 
+========================================================================
+  OSC    KnetterKees
+  MOD    KeesReso   - sequenced comb resonator (tunes the drums)
+  DELAY  KeesTaps   - rhythmic pattern multi-tap bar delay
+  REVERB KeesGate   - gated / reverse / pump reverb
+
+Order: osc -> mod -> delay -> reverb. Start with low MIX and go up.
